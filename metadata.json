@@ -1,0 +1,6 @@
+{
+  "name": "Nexora",
+  "description": "A comprehensive, high-productivity offline planner for tracking daily activities, skill growth, career roadmaps, certificate milestones, and daily journals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
