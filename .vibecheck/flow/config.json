@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "projectName": "Career",
+  "userName": "developer",
+  "skillLevel": "intermediate",
+  "outputFolder": ".vibecheck/flow",
+  "planningArtifacts": ".vibecheck\\flow\\planning-artifacts",
+  "implementationArtifacts": ".vibecheck\\flow\\implementation-artifacts",
+  "installedAt": "2026-06-25T17:13:15.994Z",
+  "ide": [
+    "vscode"
+  ]
+}

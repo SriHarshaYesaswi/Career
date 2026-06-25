@@ -816,7 +816,7 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               careerScore: 40,
               level: 1,
               xp: 0,
-              onboarded: false // Trigger onboarding!
+              onboarded: true // Trigger onboarding bypassed
             };
             
             await setDoc(userRef, newProfile);
@@ -1086,7 +1086,7 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           careerScore: 40,
           level: 1,
           xp: 0,
-          onboarded: false // Trigger onboarding!
+          onboarded: true // Trigger onboarding bypassed
         };
 
         await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
@@ -1120,7 +1120,7 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         authProvider: 'email',
         level: 1,
         xp: 0,
-        onboarded: false
+        onboarded: true
       };
 
       const updatedUsers = [...users, newUser];
@@ -1169,7 +1169,7 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           authProvider: 'google.com',
           level: 1,
           xp: 0,
-          onboarded: false
+          onboarded: true
         };
         
         const updatedUsers = [...users, newUser];
@@ -1217,7 +1217,7 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           authProvider: 'github.com',
           level: 1,
           xp: 0,
-          onboarded: false
+          onboarded: true
         };
         const updatedUsers = [...users, newUser];
         setUsers(updatedUsers);

@@ -84,7 +84,9 @@ export const Auth: React.FC = () => {
       setSuccessMsg('Successfully logged in! Setting up your campus lounge...');
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || `An error occurred during ${provider} sign-in.`);
+      if (err.code !== 'auth/popup-closed-by-user' && !err.message?.includes('auth/popup-closed-by-user')) {
+        setErrorMsg(err.message || `An error occurred during ${provider} sign-in.`);
+      }
     } finally {
       setLoading(false);
     }
