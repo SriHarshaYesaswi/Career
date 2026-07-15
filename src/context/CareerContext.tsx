@@ -5,29 +5,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  signInWithPopup,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  updateProfile as firebaseUpdateProfile
-} from 'firebase/auth';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  collection,
-  getDocs,
-  setDoc as firestoreSetDoc,
-  updateDoc as firestoreUpdateDoc,
-  deleteDoc as firestoreDeleteDoc
-} from 'firebase/firestore';
-import { auth, db, isFirebaseConfigured, googleProvider, githubProvider } from '../firebase';
-import {
   UserProfile,
   DailyActivity,
   CareerGoal,
@@ -770,7 +747,7 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setProjects(loadedProjects);
 
     // Set Active User profile:
-    if (!isFirebaseConfigured && currentUID) {
+    if (currentUID) {
       const matched = loadedUsers.find(u => u.uid === currentUID);
       if (matched) {
         setCurrentUser(matched);
@@ -779,79 +756,17 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, loadedUsers[0].uid);
       }
     }
-  }, [isFirebaseConfigured]);
-
-  // 1.5 Real Firebase Listener
-  useEffect(() => {
-    if (!isFirebaseConfigured) return;
-
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userRef = doc(db, 'users', firebaseUser.uid);
-        try {
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
-            const profile = userSnap.data() as UserProfile;
-            setCurrentUser(profile);
-            
-            // Sync all subcollections
-            await loadUserFirestoreData(firebaseUser.uid);
-            triggerNotification('Secure Connection', `Linked cloud database workspace for: ${profile.email}`, 'info');
-          } else {
-            // First time login! Register user profile
-            const provider = firebaseUser.providerData[0]?.providerId || "google.com";
-            const newProfile: UserProfile = {
-              uid: firebaseUser.uid,
-              name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Student Member',
-              email: firebaseUser.email || '',
-              profession: 'Software Engineer Intern & CS Student',
-              currentEducation: 'B.Tech in Computer Science and Engineering',
-              skills: ['React', 'Firebase', 'Data Structures'],
-              careerInterests: ['Frontend Development', 'Engineering'],
-              streakCount: 1,
-              productivityScore: 40,
-              authProvider: provider,
-              createdAt: new Date().toISOString(),
-              lastLogin: new Date().toISOString(),
-              careerScore: 40,
-              level: 1,
-              xp: 0,
-              onboarded: true // Trigger onboarding bypassed
-            };
-            
-            await setDoc(userRef, newProfile);
-            setCurrentUser(newProfile);
-            
-            await seedUserFirestoreDefaults(firebaseUser.uid);
-            triggerNotification('Welcome to Nexora!', 'Your secure portfolio is configured.', 'success');
-          }
-        } catch (err) {
-          console.error("Firestore loading error on auth transition:", err);
-        }
-      } else {
-        setCurrentUser(null);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [isFirebaseConfigured]);
+  }, []);
 
   // 2. Active User Synchronization Hook
   useEffect(() => {
-    if (currentUser) {
-      if (isFirebaseConfigured) {
-        const userRef = doc(db, 'users', currentUser.uid);
-        setDoc(userRef, currentUser, { merge: true }).catch(err => {
-          console.error("Failed to sync updated user profile to Firebase:", err);
-        });
-      } else if (users.length > 0) {
-        const updatedUsers = users.map(u => (u.uid === currentUser.uid ? currentUser : u));
-        // Save users changes to localStorage
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, currentUser.uid);
-      }
+    if (currentUser && users.length > 0) {
+      const updatedUsers = users.map(u => (u.uid === currentUser.uid ? currentUser : u));
+      // Save users changes to localStorage
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, currentUser.uid);
     }
-  }, [currentUser, isFirebaseConfigured]);
+  }, [currentUser, users]);
 
   // Recalculating Streak and Productivity scores on changes
   const runStateTelemetry = (
@@ -983,298 +898,138 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
   };
 
-  // Seeding default academic records for a premium, populated initial showcase
-  const seedUserFirestoreDefaults = async (uid: string) => {
-    try {
-      const defaultSkill = { id: 'skl_seeded', userId: uid, name: 'React', currentLevel: 3, targetLevel: 5, learningHours: 12, progressPercentage: 60, category: 'Frontend' };
-      const defaultGoal = { id: 'gl_seeded', userId: uid, title: 'Secure an SDE Summer Internship', description: 'Apply to at least 15 roles and solve 150 LeetCode problems.', isLongTerm: true, deadline: '2026-08-30', milestones: [{ id: 'ms1', title: 'Complete 5 Mock Interviews', isCompleted: false }], progressPercentage: 0, isCompleted: false, category: 'Placement' };
-      const defaultProject = { id: 'proj_seeded', userId: uid, title: 'AI Portfolio Portal', description: 'A fully responsive portfolio using React, Tailwind and Framer Motion.', lane: 'In Progress', techStack: ['React', 'Tailwind'] };
-
-      await setDoc(doc(db, 'users', uid, 'skills', defaultSkill.id), defaultSkill);
-      await setDoc(doc(db, 'users', uid, 'goals', defaultGoal.id), defaultGoal);
-      await setDoc(doc(db, 'users', uid, 'projects', defaultProject.id), defaultProject);
-
-      setSkills([defaultSkill]);
-      setGoals([defaultGoal]);
-      setProjects([defaultProject]);
-    } catch (e) {
-      console.error("Firestore seeding failed:", e);
-    }
-  };
-
-  // Load collections from Firestore under /users/{uid}/{subcollection}
-  const loadUserFirestoreData = async (uid: string) => {
-    try {
-      const collectionsToLoad = [
-        { name: 'activities', setter: setActivities },
-        { name: 'goals', setter: setGoals },
-        { name: 'skills', setter: setSkills },
-        { name: 'certificates', setter: setCertificates },
-        { name: 'roadmaps', setter: setRoadmaps },
-        { name: 'journals', setter: setJournals, path: 'journal' },
-        { name: 'applications', setter: setApplications },
-        { name: 'courses', setter: setCourses },
-        { name: 'past_semesters', setter: setPastSemesters },
-        { name: 'exams', setter: setExams },
-        { name: 'projects', setter: setProjects }
-      ];
-
-      for (const col of collectionsToLoad) {
-        const pathName = col.path || col.name;
-        const snap = await getDocs(collection(db, 'users', uid, pathName));
-        if (!snap.empty) {
-          const list = snap.docs.map(doc => doc.data());
-          col.setter(list as any);
-        } else {
-          col.setter([]);
-        }
-      }
-    } catch (e) {
-      console.error("Firestore nested load failed:", e);
-    }
-  };
-
   // Real or simulated authentication handlers
-  const login = async (email: string, password?: string): Promise<boolean> => {
-    if (isFirebaseConfigured) {
-      try {
-        await signInWithEmailAndPassword(auth, email, password || '');
-        triggerNotification('Welcome Back!', 'Login successful, syncing cloud session.', 'success');
-        return true;
-      } catch (err: any) {
-        console.error("Firebase email login error:", err);
-        throw err;
-      }
-    } else {
-      // Local preset fallback
-      const matched = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (matched) {
-        setCurrentUser(matched);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
-        triggerNotification('Welcome Back!', `Logged in offline as ${matched.name}.`, 'success');
-        return true;
-      }
+  const login = async (email: string, _password?: string): Promise<boolean> => {
+    // Local preset fallback
+    const matched = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (matched) {
+      setCurrentUser(matched);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
+      triggerNotification('Welcome Back!', `Logged in offline as ${matched.name}.`, 'success');
+      return true;
+    }
+    return false;
+  };
+
+  const signup = async (name: string, email: string, profession: string, currentEducation: string, _password?: string): Promise<boolean> => {
+    // Preventing duplicates offline
+    if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
       return false;
     }
+
+    const newUser: UserProfile = {
+      uid: 'user_' + Date.now(),
+      name,
+      email,
+      profession,
+      currentEducation,
+      skills: [],
+      careerInterests: [],
+      streakCount: 1,
+      lastActiveDate: new Date().toISOString().split('T')[0],
+      productivityScore: 40,
+      authProvider: 'email',
+      level: 1,
+      xp: 0,
+      onboarded: false
+    };
+
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
+    setCurrentUser(newUser);
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, newUser.uid);
+    triggerNotification('Account Registered', `Welcome ${name}! Your career tracker portfolio workspace is ready.`, 'success');
+    return true;
   };
 
-  const signup = async (name: string, email: string, profession: string, currentEducation: string, password?: string): Promise<boolean> => {
-    if (isFirebaseConfigured) {
-      try {
-        // Create user in Firebase Auth
-        const cred = await createUserWithEmailAndPassword(auth, email, password || '');
-        const firebaseUser = cred.user;
-        
-        // Update auth profile name
-        await firebaseUpdateProfile(firebaseUser, { displayName: name });
-
-        // Set user profile details inside Firestore
-        const newUser: UserProfile = {
-          uid: firebaseUser.uid,
-          name,
-          email,
-          profession,
-          currentEducation,
-          skills: [],
-          careerInterests: [],
-          streakCount: 1,
-          lastActiveDate: new Date().toISOString().split('T')[0],
-          productivityScore: 40,
-          authProvider: 'email',
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          careerScore: 40,
-          level: 1,
-          xp: 0,
-          onboarded: true // Trigger onboarding bypassed
-        };
-
-        await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-        setCurrentUser(newUser);
-        
-        // Optional seed defaults to populate data rather than blank board
-        await seedUserFirestoreDefaults(firebaseUser.uid);
-        triggerNotification('Account Registered', `Welcome ${name}! Setup your student workspace profile.`, 'success');
-        return true;
-      } catch (err: any) {
-        console.error("Firebase sign up error:", err);
-        throw err;
-      }
+  const googleSignIn = async (email?: string, name?: string): Promise<boolean> => {
+    // Standard local preset
+    const targetEmail = email || 'google.user@gmail.com';
+    const targetName = name || 'Google User';
+    
+    const matched = users.find(u => u.email.toLowerCase() === targetEmail.toLowerCase());
+    if (matched) {
+      setCurrentUser(matched);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
+      triggerNotification('Google Authentication', `Logged in successfully as ${matched.name}.`, 'success');
+      return true;
     } else {
-      // Preventing duplicates offline
-      if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-        return false;
-      }
-
       const newUser: UserProfile = {
         uid: 'user_' + Date.now(),
-        name,
-        email,
-        profession,
-        currentEducation,
-        skills: [],
-        careerInterests: [],
+        name: targetName,
+        email: targetEmail,
+        profession: 'Software Engineer Intern & CS Student',
+        currentEducation: 'B.Tech in Computer Science and Engineering',
+        skills: ['React', 'Firebase', 'Data Structures', 'Git'],
+        careerInterests: ['Frontend Development', 'Engineering'],
         streakCount: 1,
         lastActiveDate: new Date().toISOString().split('T')[0],
-        productivityScore: 40,
-        authProvider: 'email',
+        productivityScore: 50,
+        authProvider: 'google.com',
         level: 1,
         xp: 0,
-        onboarded: true
+        onboarded: false
       };
-
+      
       const updatedUsers = [...users, newUser];
       setUsers(updatedUsers);
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
       setCurrentUser(newUser);
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, newUser.uid);
-      triggerNotification('Account Registered', `Welcome ${name}! Your career tracker portfolio workspace is ready.`, 'success');
+      triggerNotification('Google Registered', `Registered with Google account: ${targetEmail}`, 'success');
       return true;
     }
   };
 
-  const googleSignIn = async (email?: string, name?: string): Promise<boolean> => {
-    if (isFirebaseConfigured) {
-      try {
-        const cred = await signInWithPopup(auth, googleProvider);
-        triggerNotification('Google Authenticated', `Successfully authenticated as ${cred.user.email}`, 'success');
-        return true;
-      } catch (err: any) {
-        console.error("Firebase Google sign-in failed:", err);
-        throw err;
-      }
-    } else {
-      // Standard local preset
-      const targetEmail = email || 'google.user@gmail.com';
-      const targetName = name || 'Google User';
-      
-      const matched = users.find(u => u.email.toLowerCase() === targetEmail.toLowerCase());
-      if (matched) {
-        setCurrentUser(matched);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
-        triggerNotification('Google Authentication', `Logged in successfully as ${matched.name}.`, 'success');
-        return true;
-      } else {
-        const newUser: UserProfile = {
-          uid: 'user_' + Date.now(),
-          name: targetName,
-          email: targetEmail,
-          profession: 'Software Engineer Intern & CS Student',
-          currentEducation: 'B.Tech in Computer Science and Engineering',
-          skills: ['React', 'Firebase', 'Data Structures', 'Git'],
-          careerInterests: ['Frontend Development', 'Engineering'],
-          streakCount: 1,
-          lastActiveDate: new Date().toISOString().split('T')[0],
-          productivityScore: 50,
-          authProvider: 'google.com',
-          level: 1,
-          xp: 0,
-          onboarded: true
-        };
-        
-        const updatedUsers = [...users, newUser];
-        setUsers(updatedUsers);
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
-        setCurrentUser(newUser);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, newUser.uid);
-        triggerNotification('Google Registered', `Registered with Google account: ${targetEmail}`, 'success');
-        return true;
-      }
-    }
-  };
-
   const githubSignIn = async (): Promise<boolean> => {
-    if (isFirebaseConfigured) {
-      try {
-        const cred = await signInWithPopup(auth, githubProvider);
-        triggerNotification('GitHub Authenticated', `Successfully connected via ${cred.user.email || 'GitHub Auth'}`, 'success');
-        return true;
-      } catch (err) {
-        console.error("GitHub Login Error:", err);
-        throw err;
-      }
+    // Offline fallback: simulate GitHub sign in!
+    const mockEmail = "github.student@github.com";
+    const matched = users.find(u => u.email.toLowerCase() === mockEmail.toLowerCase());
+    if (matched) {
+      setCurrentUser(matched);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
+      triggerNotification('GitHub Authentication', `Logged in successfully as ${matched.name}.`, 'success');
+      return true;
     } else {
-      // Offline fallback: simulate GitHub sign in!
-      const mockEmail = "github.student@github.com";
-      const matched = users.find(u => u.email.toLowerCase() === mockEmail.toLowerCase());
-      if (matched) {
-        setCurrentUser(matched);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
-        triggerNotification('GitHub Authentication', `Logged in successfully as ${matched.name}.`, 'success');
-        return true;
-      } else {
-        const newUser: UserProfile = {
-          uid: 'user_' + Date.now(),
-          name: 'GitHub Innovator',
-          email: mockEmail,
-          profession: 'Systems Engineering Student',
-          currentEducation: 'B.Tech in computer systems',
-          skills: ['Python', 'Docker', 'Git'],
-          careerInterests: ['DevOps', 'Back-end systems'],
-          streakCount: 1,
-          lastActiveDate: new Date().toISOString().split('T')[0],
-          productivityScore: 60,
-          authProvider: 'github.com',
-          level: 1,
-          xp: 0,
-          onboarded: true
-        };
-        const updatedUsers = [...users, newUser];
-        setUsers(updatedUsers);
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
-        setCurrentUser(newUser);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, newUser.uid);
-        triggerNotification('GitHub Authentication', `Registered and logged in with GitHub: ${mockEmail}`, 'success');
-        return true;
-      }
+      const newUser: UserProfile = {
+        uid: 'user_' + Date.now(),
+        name: 'GitHub Innovator',
+        email: mockEmail,
+        profession: 'Systems Engineering Student',
+        currentEducation: 'B.Tech in computer systems',
+        skills: ['Python', 'Docker', 'Git'],
+        careerInterests: ['DevOps', 'Back-end systems'],
+        streakCount: 1,
+        lastActiveDate: new Date().toISOString().split('T')[0],
+        productivityScore: 60,
+        authProvider: 'github.com',
+        level: 1,
+        xp: 0,
+        onboarded: false
+      };
+      const updatedUsers = [...users, newUser];
+      setUsers(updatedUsers);
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
+      setCurrentUser(newUser);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, newUser.uid);
+      triggerNotification('GitHub Authentication', `Registered and logged in with GitHub: ${mockEmail}`, 'success');
+      return true;
     }
   };
 
   const logout = async () => {
-    if (isFirebaseConfigured) {
-      try {
-        await signOut(auth);
-        setCurrentUser(null);
-        triggerNotification('Logged Out', 'Your cloud session has concluded.', 'info');
-      } catch (err) {
-        console.error("Logout Error:", err);
-      }
-    } else {
-      setCurrentUser(null);
-      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_UID);
-      triggerNotification('Logged Out', 'Offline session closed.', 'info');
-    }
+    setCurrentUser(null);
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_UID);
+    triggerNotification('Logged Out', 'Offline session closed.', 'info');
   };
 
   const resetPassword = async (email: string): Promise<void> => {
-    if (isFirebaseConfigured) {
-      try {
-        await sendPasswordResetEmail(auth, email);
-        triggerNotification('Request Processed', 'Reset link dispatched to your inbox.', 'success');
-      } catch (e: any) {
-        console.error("Reset Email Error:", e);
-        throw e;
-      }
-    } else {
-      triggerNotification('Offline Link Dispense', `Simulated password reset for: ${email}`, 'success');
-    }
+    triggerNotification('Offline Link Dispense', `Simulated password reset for: ${email}`, 'success');
   };
 
   const verifyEmail = async (): Promise<void> => {
-    if (isFirebaseConfigured) {
-      const user = auth.currentUser;
-      if (user) {
-        try {
-          await sendEmailVerification(user);
-          triggerNotification('Verification Dispatched', 'Check your mail folder for the verify message.', 'success');
-        } catch (e: any) {
-          console.error("Email verification send failure:", e);
-          throw e;
-        }
-      }
-    } else {
-      triggerNotification('Email Verification Dispense', 'Simulated dispatch of authorization key.', 'success');
-    }
+    triggerNotification('Email Verification Dispense', 'Simulated dispatch of authorization key.', 'success');
   };
 
   const updateProfile = (profile: Partial<UserProfile>) => {

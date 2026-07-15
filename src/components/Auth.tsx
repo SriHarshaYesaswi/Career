@@ -23,7 +23,6 @@ import {
   Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { isFirebaseConfigured } from '../firebase';
 
 export const Auth: React.FC = () => {
   const { 
@@ -84,9 +83,7 @@ export const Auth: React.FC = () => {
       setSuccessMsg('Successfully logged in! Setting up your campus lounge...');
     } catch (err: any) {
       console.error(err);
-      if (err.code !== 'auth/popup-closed-by-user' && !err.message?.includes('auth/popup-closed-by-user')) {
-        setErrorMsg(err.message || `An error occurred during ${provider} sign-in.`);
-      }
+      setErrorMsg(err.message || `An error occurred during ${provider} sign-in.`);
     } finally {
       setLoading(false);
     }
@@ -259,15 +256,13 @@ export const Auth: React.FC = () => {
           {/* CARD CONTAINER */}
           <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-205 dark:border-slate-800/80 rounded-3xl p-6 sm:p-9 shadow-2xl relative overflow-hidden">
             
-            {/* FIREBASE CONFIG STATE METRIC */}
-            {!isFirebaseConfigured && (
-              <div className="absolute top-0 inset-x-0 bg-amber-500/10 border-b border-amber-500/20 px-4 py-1 flex items-center justify-between">
-                <span className="text-[9.5px] font-semibold text-amber-600 dark:text-amber-300 tracking-wide select-none">
-                  ⚡ OFFLINE LOCAL ACCOUNT MODE
-                </span>
-                <span className="text-[8.5px] text-slate-500 dark:text-slate-400 font-mono">Simulated Persistence</span>
-              </div>
-            )}
+            {/* LOCAL SANDBOX STATE METRIC */}
+            <div className="absolute top-0 inset-x-0 bg-emerald-500/10 border-b border-emerald-500/20 px-4 py-1 flex items-center justify-between">
+              <span className="text-[9.5px] font-semibold text-emerald-600 dark:text-emerald-400 tracking-wide select-none">
+                ⚡ CLIENT-SIDE SANDBOX ACTIVE
+              </span>
+              <span className="text-[8.5px] text-slate-500 dark:text-slate-400 font-mono">Simulated Persistence</span>
+            </div>
 
             <div className="pt-2">
               {/* HEADER CONTAINER */}
