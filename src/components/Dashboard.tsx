@@ -106,7 +106,7 @@ export const Dashboard: React.FC<{
         hoursSpent: 3.0
       };
 
-      const response = await fetch('/api/ai/badge-honor-analysis', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/badge-honor-analysis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

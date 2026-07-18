@@ -135,7 +135,8 @@ type AuthApiResponse = {
   error?: string;
 };
 
-const AUTH_API_BASE = '/api/auth';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const AUTH_API_BASE = `${API_BASE}/api/auth`;
 
 // Local Storage Helper keys
 const STORAGE_KEYS = {
@@ -1010,7 +1011,7 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const token = localStorage.getItem('auth_token');
       if (token) {
         try {
-          await fetch('/api/auth/onboard', {
+          await fetch(`${API_BASE}/api/auth/onboard`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',

@@ -254,7 +254,7 @@ export const CareerUniverse: React.FC = () => {
     setSimLoading(true);
     setSimResult(null);
     try {
-      const response = await fetch('/api/ai/career-universe', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/career-universe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -284,7 +284,7 @@ export const CareerUniverse: React.FC = () => {
     setCompareLoading(true);
     setCompareResult(null);
     try {
-      const response = await fetch('/api/ai/career-universe', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/career-universe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -322,7 +322,7 @@ export const CareerUniverse: React.FC = () => {
         ? [customActivityDesc.trim()] 
         : activities.slice(0, 5).map(a => `${a.title}: ${a.description}`);
 
-      const response = await fetch('/api/ai/career-universe', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/career-universe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

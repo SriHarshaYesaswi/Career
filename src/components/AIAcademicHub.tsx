@@ -118,7 +118,7 @@ export const AIAcademicHub: React.FC = () => {
   const fetchDigitalTwin = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/ai/digital-twin', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/digital-twin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -201,7 +201,7 @@ export const AIAcademicHub: React.FC = () => {
     if (!notesContent.trim()) return;
     setLoading(true);
     try {
-      const response = await fetch('/api/ai/notes-generator', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/notes-generator`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: notesTitle, content: notesContent })
@@ -235,7 +235,7 @@ export const AIAcademicHub: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/ai/doubt-solver', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/doubt-solver`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: userMsg, subjectContext })
@@ -261,7 +261,7 @@ export const AIAcademicHub: React.FC = () => {
     if (!activeCourse) return;
     setLoading(true);
     try {
-      const response = await fetch('/api/ai/exam-predictor', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/exam-predictor`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -291,7 +291,7 @@ export const AIAcademicHub: React.FC = () => {
     setLoading(true);
     try {
       const skillsJoined = skills.map(s => `${s.name} (level ${s.currentLevel}/5)`).join(', ');
-      const response = await fetch('/api/ai/learning-path', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/learning-path`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -322,7 +322,7 @@ export const AIAcademicHub: React.FC = () => {
     if (!resumePaste.trim()) return;
     setLoading(true);
     try {
-      const response = await fetch('/api/ai/resume-scanner', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/ai/resume-scanner`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resumeText: resumePaste, targetJobRole })
