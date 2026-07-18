@@ -17,7 +17,6 @@ import { Journal } from './components/Journal';
 import { Analytics } from './components/Analytics';
 import { IntegrationProfile } from './components/IntegrationProfile';
 import { NotificationBar } from './components/NotificationBar';
-import { FirestoreDebugger } from './components/FirestoreDebugger';
 import { StudyStation } from './components/StudyStation';
 import { Academics } from './components/Academics';
 import { ProjectsBoard } from './components/ProjectsBoard';
@@ -49,7 +48,7 @@ import {
 } from 'lucide-react';
 
 const LayoutShell: React.FC = () => {
-  const { currentUser, logout, notifications, theme, toggleTheme } = useCareer();
+  const { currentUser, isCheckingAuth, logout, notifications, theme, toggleTheme } = useCareer();
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
@@ -59,6 +58,17 @@ const LayoutShell: React.FC = () => {
   const [academicsSubTab, setAcademicsSubTab] = useState<'ai_hub' | 'courses' | 'projects'>('ai_hub');
   const [skillsSubTab, setSkillsSubTab] = useState<'career' | 'skills' | 'goals' | 'roadmaps' | 'certificates'>('career');
   const [logsSubTab, setLogsSubTab] = useState<'focus' | 'activities' | 'journal' | 'analytics' | 'leads'>('focus');
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <Sparkles className="w-8 h-8 text-indigo-500 animate-spin" />
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return <Auth />;

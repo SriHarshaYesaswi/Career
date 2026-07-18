@@ -1,15 +1,15 @@
 import express from "express";
+import app from "./backend/app";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import connectDB from "./backend/config/db";
+import { protect } from "./backend/middleware/authMiddleware";
 
 dotenv.config();
 
-const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-
-app.use(express.json({ limit: "50mb" }));
 
 // Initialize Gemini SDK with User-Agent header for build telemetry
 const apiKey = process.env.GEMINI_API_KEY;
@@ -96,7 +96,7 @@ async function askGemini(systemInstruction: string, prompt: string): Promise<str
 // -------------------------------------------------------------
 
 // 1. Smart Notes Generator & Flashcard Hub
-app.post("/api/ai/notes-generator", async (req, res) => {
+app.post("/api/ai/notes-generator", protect, async (req, res) => {
   try {
     const { content, title } = req.body;
     if (!content) {
@@ -163,7 +163,7 @@ Your entire output MUST be valid raw JSON. Do not include markdown code block fo
 });
 
 // 2. Doubt Solver Endpoint
-app.post("/api/ai/doubt-solver", async (req, res) => {
+app.post("/api/ai/doubt-solver", protect, async (req, res) => {
   try {
     const { question, subjectContext } = req.body;
     if (!question) {
@@ -195,7 +195,7 @@ Your response MUST be formatted strictly with clean Markdown. Provide:
 });
 
 // 3. Exam Predictor Dashboard
-app.post("/api/ai/exam-predictor", async (req, res) => {
+app.post("/api/ai/exam-predictor", protect, async (req, res) => {
   try {
     const { courseCode, courseName, previousWeightsText } = req.body;
     
@@ -245,7 +245,7 @@ Provide your response strictly in JSON format. Match this exact JSON schema:
 });
 
 // 4. Learning Path / Smart Resource Hub Recommendation
-app.post("/api/ai/learning-path", async (req, res) => {
+app.post("/api/ai/learning-path", protect, async (req, res) => {
   try {
     const { careerGoal, skillsText, weakSubjects } = req.body;
 
@@ -296,7 +296,7 @@ Format your response strictly in cohesive JSON. Match this JSON layout exactly:
 });
 
 // 5. Digital Twin / AI Life Coach Intelligence Analyzer
-app.post("/api/ai/digital-twin", async (req, res) => {
+app.post("/api/ai/digital-twin", protect, async (req, res) => {
   try {
     const { studentProfile, academics, projects, goals, skills } = req.body;
 
@@ -366,7 +366,7 @@ Student Portfolio Data:
 });
 
 // 6. ATS Resume Keyword Scanner API
-app.post("/api/ai/resume-scanner", async (req, res) => {
+app.post("/api/ai/resume-scanner", protect, async (req, res) => {
   try {
     const { resumeText, targetJobRole } = req.body;
     if (!resumeText) {
@@ -419,7 +419,7 @@ Return exclusively valid JSON. Match this structure:
 });
 
 // 7. Interactive Gamified Career Universe & Multiverse API Endpoint
-app.post("/api/ai/career-universe", async (req, res) => {
+app.post("/api/ai/career-universe", protect, async (req, res) => {
   try {
     const { task, payload } = req.body;
     if (!task) {
@@ -558,7 +558,7 @@ Return only JSON.`;
 });
 
 // 8. AI Badge Honor & Daily Work Performance Analysis Endpoint
-app.post("/api/ai/badge-honor-analysis", async (req, res) => {
+app.post("/api/ai/badge-honor-analysis", protect, async (req, res) => {
   try {
     const { currentUser, activities, goals, skills, badges } = req.body;
     if (!currentUser) {
@@ -628,6 +628,8 @@ Existing Badges: ${JSON.stringify(badges || [])}
 // VITE AND STATIC SUB-LAYER MIDDLEWARES
 // -------------------------------------------------------------
 async function startServer() {
+  await connectDB();
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },

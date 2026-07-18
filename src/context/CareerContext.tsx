@@ -4,6 +4,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+// Firebase removed — using pure MERN stack (bcrypt + JWT via Express backend)
 import {
   UserProfile,
   DailyActivity,
@@ -46,13 +47,14 @@ interface CareerContextType {
   exams: ExamMetric[];
   projects: ProjectCard[];
   
-  // Auth Functions (Real Firebase and fallback Mock)
+  // Auth Functions
+  isCheckingAuth: boolean;
   login: (email: string, password?: string) => Promise<boolean>;
   signup: (name: string, email: string, profession: string, currentEducation: string, password?: string) => Promise<boolean>;
   googleSignIn: (email?: string, name?: string) => Promise<boolean>;
   githubSignIn: () => Promise<boolean>;
   logout: () => void;
-  updateProfile: (profile: Partial<UserProfile>) => void;
+  updateProfile: (profile: Partial<UserProfile>) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   verifyEmail: () => Promise<void>;
   
@@ -126,6 +128,15 @@ interface CareerContextType {
 
 const CareerContext = createContext<CareerContextType | undefined>(undefined);
 
+type AuthApiResponse = {
+  ok: boolean;
+  user?: UserProfile;
+  token?: string;
+  error?: string;
+};
+
+const AUTH_API_BASE = '/api/auth';
+
 // Local Storage Helper keys
 const STORAGE_KEYS = {
   USERS: 'career_tracker_users',
@@ -159,6 +170,7 @@ const DEFAULT_BADGES: AchievementBadge[] = [
 export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [activities, setActivities] = useState<DailyActivity[]>([]);
   const [goals, setGoals] = useState<CareerGoal[]>([]);
   const [skills, setSkills] = useState<SkillItem[]>([]);
@@ -190,43 +202,42 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const toggleTheme = () => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
 
-  // 1. Initial State Bootstrapper (using local storage or inserting Mock Data for Harsha)
+  // 1. Initial State Bootstrapper (fetch current user via backend)
   useEffect(() => {
-    // Check if USERS exist in storage
+    const fetchCurrentUser = async () => {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          const response = await fetch(`${AUTH_API_BASE}/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const data = await response.json();
+          if (response.ok && data.user) {
+            setCurrentUser(data.user);
+          } else {
+            // Token invalid or expired
+            localStorage.removeItem('auth_token');
+            setCurrentUser(null);
+          }
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          setCurrentUser(null);
+        } finally {
+          setIsCheckingAuth(false);
+        }
+      } else {
+        setIsCheckingAuth(false);
+      }
+    };
+    fetchCurrentUser();
+
+    // Load other mock data for now or initialize empty
     const storedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
-    const storedUID = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_UID);
-    
-    let loadedUsers: UserProfile[] = [];
-    let currentUID: string | null = null;
-
-    if (!storedUsers) {
-      // Setup HARSHA as default user
-      const harsha: UserProfile = {
-        uid: 'user_harsha',
-        name: 'Harsha',
-        email: 'harsha@career.com',
-        profession: 'Software Engineer Intern & CS Student',
-        currentEducation: 'B.Tech in Computer Science and Engineering',
-        skills: ['React', 'Firebase', 'Java', 'Python', 'Data Structures', 'Git'],
-        careerInterests: ['Frontend Development', 'Full-Stack Engineering', 'Cloud Solutions', 'AI systems'],
-        linkedinUrl: 'https://linkedin.com/in/harsha-developer',
-        githubUrl: 'https://github.com/harsha-dev',
-        resumeUrl: 'https://career-tracker.offline/resumes/harsha_cv.pdf',
-        resumeFileName: 'harsha_portfolio_resume.pdf',
-        streakCount: 5,
-        lastActiveDate: new Date().toISOString().split('T')[0],
-        productivityScore: 88
-      };
-      loadedUsers = [harsha];
-      currentUID = 'user_harsha';
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(loadedUsers));
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, currentUID);
-    } else {
-      loadedUsers = JSON.parse(storedUsers);
-      currentUID = storedUID || (loadedUsers.length > 0 ? loadedUsers[0].uid : null);
+    if (storedUsers) {
+      setUsers(JSON.parse(storedUsers));
     }
-
-    setUsers(loadedUsers);
 
     // Bootstrapped Mock activities if empty
     const storedActivities = localStorage.getItem(STORAGE_KEYS.ACTIVITIES);
@@ -746,16 +757,9 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
     setProjects(loadedProjects);
 
-    // Set Active User profile:
-    if (currentUID) {
-      const matched = loadedUsers.find(u => u.uid === currentUID);
-      if (matched) {
-        setCurrentUser(matched);
-      } else if (loadedUsers.length > 0) {
-        setCurrentUser(loadedUsers[0]);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, loadedUsers[0].uid);
-      }
-    }
+    // Active user is now fetched from the backend.
+    
+    // Optional: fetch users periodically or just rely on auth
   }, []);
 
   // 2. Active User Synchronization Hook
@@ -898,130 +902,90 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
   };
 
-  // Real or simulated authentication handlers
-  const login = async (email: string, _password?: string): Promise<boolean> => {
-    // Local preset fallback
-    const matched = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (matched) {
-      setCurrentUser(matched);
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
-      triggerNotification('Welcome Back!', `Logged in offline as ${matched.name}.`, 'success');
-      return true;
+  const syncAuthenticatedUser = (nextUser: UserProfile) => {
+    setUsers(prevUsers => {
+      const updatedUsers = prevUsers.some(user => user.uid === nextUser.uid)
+        ? prevUsers.map(user => user.uid === nextUser.uid ? nextUser : user)
+        : [...prevUsers, nextUser];
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
+      return updatedUsers;
+    });
+
+    setCurrentUser(nextUser);
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, nextUser.uid);
+  };
+
+  const callAuthApi = async (endpoint: string, payload: Record<string, unknown>): Promise<AuthApiResponse> => {
+    const response = await fetch(`${AUTH_API_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json().catch(() => null) as AuthApiResponse | null;
+    if (!response.ok || !data?.ok) {
+      throw new Error(data?.error || 'Express auth backend is unavailable.');
+    }
+
+    return data;
+  };
+
+  const login = async (email: string, password?: string): Promise<boolean> => {
+    try {
+      const response = await callAuthApi('/login', { email, password });
+      if (response.user && response.token) {
+        localStorage.setItem('auth_token', response.token);
+        syncAuthenticatedUser(response.user);
+        triggerNotification('Welcome Back!', `Logged in as ${response.user.name}.`, 'success');
+        return true;
+      }
+    } catch (error: any) {
+      triggerNotification('Login Failed', error.message, 'warning');
     }
     return false;
   };
 
-  const signup = async (name: string, email: string, profession: string, currentEducation: string, _password?: string): Promise<boolean> => {
-    // Preventing duplicates offline
-    if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-      return false;
+  const signup = async (name: string, email: string, profession: string, currentEducation: string, password?: string): Promise<boolean> => {
+    try {
+      const response = await callAuthApi('/signup', {
+        name,
+        email,
+        profession,
+        currentEducation,
+        password
+      });
+
+      if (response.user && response.token) {
+        localStorage.setItem('auth_token', response.token);
+        syncAuthenticatedUser(response.user);
+        triggerNotification('Account Registered', `Welcome ${name}! Your career tracker is ready.`, 'success');
+        return true;
+      }
+    } catch (error: any) {
+      triggerNotification('Signup Failed', error.message, 'warning');
     }
-
-    const newUser: UserProfile = {
-      uid: 'user_' + Date.now(),
-      name,
-      email,
-      profession,
-      currentEducation,
-      skills: [],
-      careerInterests: [],
-      streakCount: 1,
-      lastActiveDate: new Date().toISOString().split('T')[0],
-      productivityScore: 40,
-      authProvider: 'email',
-      level: 1,
-      xp: 0,
-      onboarded: false
-    };
-
-    const updatedUsers = [...users, newUser];
-    setUsers(updatedUsers);
-    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
-    setCurrentUser(newUser);
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, newUser.uid);
-    triggerNotification('Account Registered', `Welcome ${name}! Your career tracker portfolio workspace is ready.`, 'success');
-    return true;
+    return false;
   };
 
-  const googleSignIn = async (email?: string, name?: string): Promise<boolean> => {
-    // Standard local preset
-    const targetEmail = email || 'google.user@gmail.com';
-    const targetName = name || 'Google User';
-    
-    const matched = users.find(u => u.email.toLowerCase() === targetEmail.toLowerCase());
-    if (matched) {
-      setCurrentUser(matched);
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
-      triggerNotification('Google Authentication', `Logged in successfully as ${matched.name}.`, 'success');
-      return true;
-    } else {
-      const newUser: UserProfile = {
-        uid: 'user_' + Date.now(),
-        name: targetName,
-        email: targetEmail,
-        profession: 'Software Engineer Intern & CS Student',
-        currentEducation: 'B.Tech in Computer Science and Engineering',
-        skills: ['React', 'Firebase', 'Data Structures', 'Git'],
-        careerInterests: ['Frontend Development', 'Engineering'],
-        streakCount: 1,
-        lastActiveDate: new Date().toISOString().split('T')[0],
-        productivityScore: 50,
-        authProvider: 'google.com',
-        level: 1,
-        xp: 0,
-        onboarded: false
-      };
-      
-      const updatedUsers = [...users, newUser];
-      setUsers(updatedUsers);
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
-      setCurrentUser(newUser);
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, newUser.uid);
-      triggerNotification('Google Registered', `Registered with Google account: ${targetEmail}`, 'success');
-      return true;
-    }
+  const googleSignIn = async (): Promise<boolean> => {
+    // Google OAuth requires server-side OAuth flow — coming soon.
+    triggerNotification('Social Sign-In', 'Google sign-in is coming soon. Please use email & password for now.', 'info');
+    return false;
   };
 
   const githubSignIn = async (): Promise<boolean> => {
-    // Offline fallback: simulate GitHub sign in!
-    const mockEmail = "github.student@github.com";
-    const matched = users.find(u => u.email.toLowerCase() === mockEmail.toLowerCase());
-    if (matched) {
-      setCurrentUser(matched);
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, matched.uid);
-      triggerNotification('GitHub Authentication', `Logged in successfully as ${matched.name}.`, 'success');
-      return true;
-    } else {
-      const newUser: UserProfile = {
-        uid: 'user_' + Date.now(),
-        name: 'GitHub Innovator',
-        email: mockEmail,
-        profession: 'Systems Engineering Student',
-        currentEducation: 'B.Tech in computer systems',
-        skills: ['Python', 'Docker', 'Git'],
-        careerInterests: ['DevOps', 'Back-end systems'],
-        streakCount: 1,
-        lastActiveDate: new Date().toISOString().split('T')[0],
-        productivityScore: 60,
-        authProvider: 'github.com',
-        level: 1,
-        xp: 0,
-        onboarded: false
-      };
-      const updatedUsers = [...users, newUser];
-      setUsers(updatedUsers);
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedUsers));
-      setCurrentUser(newUser);
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_UID, newUser.uid);
-      triggerNotification('GitHub Authentication', `Registered and logged in with GitHub: ${mockEmail}`, 'success');
-      return true;
-    }
+    // GitHub OAuth requires server-side OAuth flow — coming soon.
+    triggerNotification('Social Sign-In', 'GitHub sign-in is coming soon. Please use email & password for now.', 'info');
+    return false;
   };
 
-  const logout = async () => {
+  const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_UID);
-    triggerNotification('Logged Out', 'Offline session closed.', 'info');
+    localStorage.removeItem('auth_token');
+    triggerNotification('Logged Out', 'Session securely closed.', 'info');
   };
 
   const resetPassword = async (email: string): Promise<void> => {
@@ -1032,14 +996,38 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     triggerNotification('Email Verification Dispense', 'Simulated dispatch of authorization key.', 'success');
   };
 
-  const updateProfile = (profile: Partial<UserProfile>) => {
+  const updateProfile = async (profile: Partial<UserProfile>) => {
     if (!currentUser) return;
     const nextUser = { ...currentUser, ...profile };
     setCurrentUser(nextUser);
-    
-    // Save locally
+
+    // Persist locally
     setUsers(prev => prev.map(u => u.uid === currentUser.uid ? nextUser : u));
     triggerNotification('Profile Updated', 'Your educational goals and portfolio parameters have updated.', 'info');
+
+    // Sync onboarding status to MongoDB if the user just completed onboarding
+    if (profile.onboarded === true) {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          await fetch('/api/auth/onboard', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              profession: nextUser.profession,
+              currentEducation: nextUser.currentEducation,
+              skills: nextUser.skills,
+              careerInterests: nextUser.careerInterests,
+            })
+          });
+        } catch (err) {
+          console.warn('Could not sync onboarding to backend:', err);
+        }
+      }
+    }
   };
 
   const unlockBadges = (badgeIds: string[]) => {
@@ -1511,6 +1499,7 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       value={{
         currentUser,
         setCurrentUser,
+        isCheckingAuth,
         users,
         activities,
         goals,

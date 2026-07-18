@@ -1,0 +1,61 @@
+[
+  {
+    "uid": "user_harsha",
+    "name": "Harsha",
+    "email": "harsha@career.com",
+    "profession": "Software Engineer Intern & CS Student",
+    "currentEducation": "B.Tech in Computer Science and Engineering",
+    "skills": [
+      "React",
+      "Firebase",
+      "Java",
+      "Python",
+      "Data Structures",
+      "Git"
+    ],
+    "careerInterests": [
+      "Frontend Development",
+      "Full-Stack Engineering",
+      "Cloud Solutions",
+      "AI systems"
+    ],
+    "streakCount": 5,
+    "productivityScore": 88,
+    "authProvider": "email",
+    "onboarded": false,
+    "createdAt": "2026-07-15T17:33:28.528Z",
+    "lastLogin": "2026-07-15T17:33:28.530Z"
+  },
+  {
+    "uid": "user_1784136859283",
+    "name": "Test User",
+    "email": "test.user+20260715230414@career.dev",
+    "profession": "Software Engineer Intern & CS Student",
+    "currentEducation": "B.Tech in Computer Science and Engineering",
+    "skills": [],
+    "careerInterests": [],
+    "streakCount": 1,
+    "productivityScore": 40,
+    "authProvider": "email",
+    "onboarded": false,
+    "createdAt": "2026-07-15T17:34:19.283Z",
+    "lastLogin": "2026-07-15T17:34:20.037Z",
+    "passwordHash": "VGVzdFBhc3MxMjMh"
+  },
+  {
+    "uid": "user_1784136883175",
+    "name": "Login Test",
+    "email": "test.login+20260715230443@career.dev",
+    "profession": "Software Engineer Intern & CS Student",
+    "currentEducation": "B.Tech in Computer Science and Engineering",
+    "skills": [],
+    "careerInterests": [],
+    "streakCount": 1,
+    "productivityScore": 40,
+    "authProvider": "email",
+    "onboarded": false,
+    "createdAt": "2026-07-15T17:34:43.175Z",
+    "lastLogin": "2026-07-15T17:34:43.210Z",
+    "passwordHash": "VGVzdFBhc3MxMjMh"
+  }
+]

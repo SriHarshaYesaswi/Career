@@ -22,7 +22,7 @@ export interface UserProfile {
   cgpa?: number;
   hoursInvested?: number;
   
-  // Custom Firebase + Onboarding fields
+  // Onboarding & profile enrichment fields
   authProvider?: string;
   collegeName?: string;
   degree?: string;
