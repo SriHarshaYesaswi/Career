@@ -1,20 +1,37 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Career Tracker (Separated Full-Stack App)
 
-# Run and deploy your AI Studio app
+This project has been separated into two distinct directories for better maintainability and cleaner deployments.
 
-This contains everything you need to run your app locally.
+## Directory Structure
+- **`/frontend`**: The React + Vite application.
+- **`/backend`**: The Node.js + Express API server.
 
-View your app in AI Studio: https://ai.studio/apps/715bb668-affc-49fb-b61a-d28ae6dafff7
+## How to Run Locally
 
-## Run Locally
+You need two terminal windows to run both servers simultaneously.
 
-**Prerequisites:**  Node.js
+### 1. Run the Backend API
+In your first terminal:
+```bash
+cd backend
+npm install
+npm run dev
+```
+*(The backend runs on `http://localhost:3000`)*
 
+### 2. Run the Frontend App
+In your second terminal:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*(The frontend runs on `http://localhost:5173` and automatically proxies `/api/*` requests to the backend)*
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Environment Variables
+- `frontend/.env` - Used for Vite environment variables (e.g., `VITE_API_BASE_URL`). Leave it blank for local development.
+- `backend/.env` - Contains MongoDB strings, JWT secrets, Gemini API keys, and OAuth Client IDs.
+
+## Deployment
+- **Frontend (Vercel)**: Set the **Root Directory** in project settings to `frontend`.
+- **Backend (Render)**: Set the **Root Directory** in project settings to `backend`. Make sure your Build Command is `npm run build` and Start Command is `npm start`.
