@@ -15,7 +15,6 @@ import {
   ArrowRight, 
   AlertCircle, 
   CheckCircle,
-  Github,
   KeyRound,
   Compass,
   ArrowLeft,
@@ -28,8 +27,6 @@ export const Auth: React.FC = () => {
   const { 
     login, 
     signup, 
-    googleSignIn, 
-    githubSignIn, 
     resetPassword,
     triggerNotification,
     theme,
@@ -69,25 +66,6 @@ export const Auth: React.FC = () => {
   };
 
   const strength = getPasswordStrength(password);
-
-  const handleSocialSignIn = async (provider: 'google' | 'github') => {
-    setLoading(true);
-    setErrorMsg('');
-    setSuccessMsg('');
-    try {
-      if (provider === 'google') {
-        await googleSignIn();
-      } else {
-        await githubSignIn();
-      }
-      setSuccessMsg('Successfully logged in! Setting up your campus lounge...');
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err.message || `An error occurred during ${provider} sign-in.`);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -305,47 +283,6 @@ export const Auth: React.FC = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {/* SOCIAL BUTTONS FOR ACTIVE MODES */}
-              {authMode !== 'forgot' && (
-                <div className="space-y-2.5 mb-5.5">
-                  {/* Social buttons - Coming Soon */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => handleSocialSignIn('google')}
-                      disabled={loading}
-                      className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl text-xs.5 font-bold transition-all border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-sm cursor-pointer"
-                    >
-                      {/* Google Icon SVG */}
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.275 1.564-1.852 4.593-6.887 4.593-4.34 0-7.876-3.593-7.876-8s3.536-8 7.876-8c2.466 0 4.12 1.025 5.06 1.93l3.224-3.1C18.423 1.91 15.613 1 12.24 1 5.922 1 1.01 5.922 1.01 12.24s4.922 11.24 11.24 11.24c6.6 0 11-4.636 11-11.24 0-.756-.08-1.334-.18-1.955H12.24z" />
-                      </svg>
-                      Continue with Google
-                    </button>
-                  </div>
-
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => handleSocialSignIn('github')}
-                      disabled={loading}
-                      className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl text-xs.5 font-bold transition-all border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-sm cursor-pointer"
-                    >
-                      <Github className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-                      Continue with GitHub
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-3 my-4">
-                    <div className="flex-1 h-[1px] bg-slate-200 dark:bg-slate-800" />
-                    <span className="text-[10px] uppercase font-bold tracking-wider font-mono text-slate-400 dark:text-slate-505">
-                      Or Authorized Mail
-                    </span>
-                    <div className="flex-1 h-[1px] bg-slate-200 dark:bg-slate-800" />
-                  </div>
-                </div>
-              )}
 
               {/* AUTH CREDENTIALS FORM */}
               <form onSubmit={handleFormSubmit} className="space-y-4">

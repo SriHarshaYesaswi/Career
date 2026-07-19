@@ -52,8 +52,6 @@ interface CareerContextType {
   isCheckingAuth: boolean;
   login: (email: string, password?: string) => Promise<boolean>;
   signup: (name: string, email: string, profession: string, currentEducation: string, password?: string) => Promise<boolean>;
-  googleSignIn: (email?: string, name?: string) => Promise<boolean>;
-  githubSignIn: () => Promise<boolean>;
   logout: () => void;
   updateProfile: (profile: Partial<UserProfile>) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -970,26 +968,6 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return false;
   };
 
-  const googleSignIn = async (): Promise<boolean> => {
-    try {
-      window.location.href = `${API_BASE}/api/auth/google`;
-      return true;
-    } catch (err) {
-      console.error("Google Auth failed", err);
-      throw err;
-    }
-  };
-
-  const githubSignIn = async (): Promise<boolean> => {
-    try {
-      window.location.href = `${API_BASE}/api/auth/github`;
-      return true;
-    } catch (err) {
-      console.error("GitHub Auth failed", err);
-      throw err;
-    }
-  };
-
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_UID);
@@ -1527,8 +1505,6 @@ export const CareerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         // Functions
         login,
         signup,
-        googleSignIn,
-        githubSignIn,
         logout,
         updateProfile,
         unlockBadges,

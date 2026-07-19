@@ -22,7 +22,6 @@ import { Academics } from './components/Academics';
 import { ProjectsBoard } from './components/ProjectsBoard';
 import { AIAcademicHub } from './components/AIAcademicHub';
 import { CareerUniverse } from './components/CareerUniverse';
-import { OAuthCallback } from './components/OAuthCallback';
 
 import { 
   Home, 
@@ -500,15 +499,6 @@ const LayoutShell: React.FC = () => {
 };
 
 export default function App() {
-  // Simple router for OAuth callback
-  if (window.location.pathname === '/auth/callback') {
-    return (
-      <CareerProvider>
-        <OAuthCallback />
-      </CareerProvider>
-    );
-  }
-
   return (
     <CareerProvider>
       <LayoutShell />
