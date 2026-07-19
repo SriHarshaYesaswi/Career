@@ -186,7 +186,7 @@ export const Dashboard: React.FC<{
   return (
     <div className="space-y-6">
       {/* 1. Header greeting banner */}
-      <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl shadow-slate-200">
+      <div className="bg-slate-900 rounded-3xl p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden shadow-xl shadow-slate-200">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <Sparkles className="w-48 h-48 text-white" />
         </div>
@@ -194,44 +194,44 @@ export const Dashboard: React.FC<{
           <span className="bg-blue-600/30 text-blue-300 font-semibold px-3 py-1 rounded-full text-xs uppercase tracking-wider">
             Portfolio Engine Active
           </span>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold leading-tight">
             {getGreeting()}, {currentUser.name} 👋
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base">
+          <p className="text-slate-300 text-xs sm:text-sm">
             Your career trajectory is healthy. You maintain a <span className="text-amber-400 font-bold font-mono">{currentUser.streakCount}-day</span> learning streak and a strong productivity score. Keep pushing!
           </p>
-          <div className="pt-2 flex flex-wrap gap-2.5">
+          <div className="pt-2 flex flex-wrap gap-2">
             <button 
               onClick={onOpenQuickActivity}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-blue-900/30"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-blue-900/30"
             >
               + Log Daily Activity
             </button>
             <button 
               onClick={() => setActiveTab('studystation')}
-              className="bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-indigo-900/35"
+              className="bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-indigo-900/35"
             >
               <Clock className="w-3.5 h-3.5" /> Start Deep Focus
             </button>
             <button 
               onClick={() => setActiveTab('roadmaps')}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer"
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer"
             >
               <GitBranch className="w-3.5 h-3.5" /> Plan Roadmap
             </button>
             <button 
               onClick={() => setIsEditProfileOpen(true)}
-              className="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 border border-amber-500/30 hover:border-amber-500/50 transition-all cursor-pointer shadow-sm"
+              className="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 border border-amber-500/30 hover:border-amber-500/50 transition-all cursor-pointer shadow-sm"
               id="btn_manual_data_custom_override"
             >
-              <Settings className="w-3.5 h-3.5 text-amber-400" /> Overwrite Manual Data
+              <Settings className="w-3.5 h-3.5 text-amber-400" /> <span className="hidden sm:inline">Overwrite </span>Manual Data
             </button>
           </div>
         </div>
       </div>
 
       {/* 2. Quick stats bento cards row */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-tight">Today's Tasks</span>
@@ -292,7 +292,7 @@ export const Dashboard: React.FC<{
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between col-span-2 md:col-span-1 transition-colors">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between col-span-2 sm:col-span-1 transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-tight">Productivity Rating</span>
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -407,7 +407,7 @@ export const Dashboard: React.FC<{
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {badges.map((b) => {
                 const isUnlocked = b.isUnlocked;
                 return (
@@ -518,8 +518,8 @@ export const Dashboard: React.FC<{
 
       {/* MODAL 1: Overwrite Manual Data Form */}
       {isEditProfileOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full border border-slate-105 dark:border-slate-800 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full border border-slate-105 dark:border-slate-800 shadow-2xl p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setIsEditProfileOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
@@ -538,7 +538,7 @@ export const Dashboard: React.FC<{
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-1">Name</label>
                   <input 
@@ -563,7 +563,7 @@ export const Dashboard: React.FC<{
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-1">Current Education Group</label>
                   <input 
@@ -586,7 +586,7 @@ export const Dashboard: React.FC<{
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-1">GPA Standing</label>
                   <input 
@@ -622,7 +622,7 @@ export const Dashboard: React.FC<{
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-1">Multiverse Target Role</label>
                   <input 
@@ -681,8 +681,8 @@ export const Dashboard: React.FC<{
 
       {/* MODAL 2: AI Work Analysis & Professional Badge Honor Cabinet */}
       {isEvaluationOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full border border-slate-105 dark:border-slate-800 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full border border-slate-105 dark:border-slate-800 shadow-2xl p-4 sm:p-6 relative max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setIsEvaluationOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer text-base"

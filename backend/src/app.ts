@@ -6,10 +6,28 @@ import authRoutes from './routes/auth';
 const app = express();
 
 // Middleware
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://career-high.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+const isAllowedOrigin = (origin: string) => {
+  if (!origin) return true;
+
+  if (origin === FRONTEND_URL) return true;
+  if (origin === 'http://localhost:5173') return true;
+  if (origin.startsWith('https://') && origin.endsWith('.vercel.app')) return true;
+  if (origin.startsWith('https://') && origin.endsWith('.netlify.app')) return true;
+
+  return false;
+};
 
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin || '')) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));

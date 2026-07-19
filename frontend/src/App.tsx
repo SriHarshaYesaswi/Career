@@ -142,10 +142,10 @@ const LayoutShell: React.FC = () => {
       case 'academics':
         return (
           <div className="space-y-6">
-            <div className="flex flex-wrap bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 p-1 rounded-xl max-w-md transition-colors">
+            <div className="flex bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 p-1 rounded-xl overflow-x-auto scrollbar-none transition-colors">
               <button
                 onClick={() => setAcademicsSubTab('ai_hub')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   academicsSubTab === 'ai_hub' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -155,7 +155,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setAcademicsSubTab('courses')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   academicsSubTab === 'courses' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -165,7 +165,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setAcademicsSubTab('projects')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   academicsSubTab === 'projects' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -184,10 +184,10 @@ const LayoutShell: React.FC = () => {
       case 'skills':
         return (
           <div className="space-y-6">
-            <div className="flex flex-wrap bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 p-1 rounded-xl max-w-2xl transition-colors">
+            <div className="flex bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 p-1 rounded-xl overflow-x-auto scrollbar-none transition-colors">
               <button
                 onClick={() => setSkillsSubTab('career')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   skillsSubTab === 'career' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -197,7 +197,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setSkillsSubTab('skills')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   skillsSubTab === 'skills' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -207,7 +207,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setSkillsSubTab('goals')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   skillsSubTab === 'goals' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -217,7 +217,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setSkillsSubTab('roadmaps')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   skillsSubTab === 'roadmaps' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -227,7 +227,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setSkillsSubTab('certificates')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   skillsSubTab === 'certificates' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -248,10 +248,10 @@ const LayoutShell: React.FC = () => {
       case 'integrations':
         return (
           <div className="space-y-6">
-            <div className="flex flex-wrap bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 p-1 rounded-xl max-w-2xl transition-colors">
+            <div className="flex bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 p-1 rounded-xl overflow-x-auto scrollbar-none transition-colors">
               <button
                 onClick={() => setLogsSubTab('focus')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   logsSubTab === 'focus' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -261,7 +261,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setLogsSubTab('activities')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   logsSubTab === 'activities' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -271,7 +271,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setLogsSubTab('journal')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   logsSubTab === 'journal' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -281,7 +281,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setLogsSubTab('analytics')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   logsSubTab === 'analytics' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -291,7 +291,7 @@ const LayoutShell: React.FC = () => {
               </button>
               <button
                 onClick={() => setLogsSubTab('leads')}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-max py-1.5 px-3 rounded-lg text-xs font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
                   logsSubTab === 'leads' 
                     ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs' 
                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
@@ -408,7 +408,7 @@ const LayoutShell: React.FC = () => {
         <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 transition-colors">
           
           {/* Top Header Navbar */}
-          <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 py-3.5 px-6 flex items-center justify-between shadow-xs transition-colors">
+          <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 py-3 px-3 sm:py-3.5 sm:px-6 flex items-center justify-between shadow-xs transition-colors">
             <div className="flex items-center gap-3">
               {/* Logo / Nav Bar Button Triggers Nav Drawer - Uniformly styled, changes to Menu only on hover */}
               <button 
@@ -427,7 +427,7 @@ const LayoutShell: React.FC = () => {
               </button>
 
               <div className="flex items-center gap-1.5 font-sans">
-                <span className="text-xs font-semibold text-slate-752 dark:text-slate-250 bg-slate-100 dark:bg-slate-800 border border-slate-150 dark:border-slate-700 rounded px-2.5 py-0.5 shadow-2xs">
+                <span className="hidden xs:inline text-xs font-semibold text-slate-752 dark:text-slate-250 bg-slate-100 dark:bg-slate-800 border border-slate-150 dark:border-slate-700 rounded px-2.5 py-0.5 shadow-2xs">
                    Calibration Workspace: Active
                 </span>
               </div>
@@ -488,7 +488,7 @@ const LayoutShell: React.FC = () => {
           </header>
 
           {/* Active Screen Tab Area */}
-          <div className="flex-grow p-6 sm:p-8 max-w-7xl mx-auto w-full">
+          <div className="flex-grow p-3 sm:p-5 lg:p-8 max-w-7xl mx-auto w-full">
             {renderActiveTabContent()}
           </div>
           

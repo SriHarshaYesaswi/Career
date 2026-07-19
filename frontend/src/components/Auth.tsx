@@ -167,8 +167,8 @@ export const Auth: React.FC = () => {
       <div className="absolute top-0 left-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 blur-3xl pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-blue-500/5 dark:bg-blue-500/10 blur-3xl pointer-events-none" />
 
-      {/* LEFT SPLIT-SCREEN: BRAND & MOTIVATIONAL ILLUSTRATION */}
-      <div className="flex-1 bg-slate-100/60 dark:bg-slate-900/40 border-b lg:border-b-0 lg:border-r border-slate-205 dark:border-slate-800 flex flex-col justify-between p-8 lg:p-14 relative z-10 overflow-hidden">
+      {/* LEFT SPLIT-SCREEN: BRAND & MOTIVATIONAL ILLUSTRATION — hidden on mobile */}
+      <div className="hidden lg:flex flex-1 bg-slate-100/60 dark:bg-slate-900/40 border-b lg:border-b-0 lg:border-r border-slate-205 dark:border-slate-800 flex-col justify-between p-8 lg:p-14 relative z-10 overflow-hidden">
         {/* LOGO AREA */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 via-rose-500 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/25">
@@ -228,11 +228,18 @@ export const Auth: React.FC = () => {
       </div>
 
       {/* RIGHT SPLIT-SCREEN: GLASSMORPHISM AUTH CARD */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 lg:p-14 relative z-10">
+      <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-14 relative z-10 min-h-screen lg:min-h-0">
         <div className="w-full max-w-md">
+          {/* Logo shown only on mobile (left panel is hidden on mobile) */}
+          <div className="flex items-center gap-3 mb-6 lg:hidden">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 via-rose-500 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/25">
+              <Sparkles className="w-4 h-4 text-white animate-pulse" />
+            </div>
+            <span className="text-lg font-display font-extrabold tracking-tight text-slate-900 dark:text-white">Nexora</span>
+          </div>
           
           {/* CARD CONTAINER */}
-          <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-205 dark:border-slate-800/80 rounded-3xl p-6 sm:p-9 shadow-2xl relative overflow-hidden">
+          <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-205 dark:border-slate-800/80 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
             
             {/* LOCAL SANDBOX STATE METRIC */}
             <div className="absolute top-0 inset-x-0 bg-emerald-500/10 border-b border-emerald-500/20 px-4 py-1 flex items-center justify-between">
